@@ -1,9 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
+import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { database } from "./firebaseApp";
+
+const COLLECTION_NAME = "title";  // コレクション名
+const UNIQUE_DATA_ID = "unique";  // ドキュメントID
+
+// Firestore に格納されるデータの型定義
+type Data = {
+  title: string;
+};
+
+// Firestore 上のタイトルデータを更新する
+function updateData(newTitle: string) {
+  const dataDoc = doc(database, COLLECTION_NAME, UNIQUE_DATA_ID);
+  const data: Data = {
+    title: newTitle,
+  };
+  setDoc(dataDoc, data);
+}
 
 function App() {
   const [title, setTitle] = useState("Firebase、マジ神");
   const [userTitle, setUserTitle] = useState("");
+
+  // ドキュメントリスナーの生成
+  useEffect(() => {
+    const dataDoc = doc(database, COLLECTION_NAME, UNIQUE_DATA_ID);
+    const unsubscribe = onSnapshot(dataDoc, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as Data;
+        setTitle(data.title);
+      }
+      return () => unsubscribe();
+    });
+  }, []);
 
   // ユーザー入力のハンドリング
   function handleOnChangeUserTitle(newTitle: string) {
@@ -12,7 +43,7 @@ function App() {
 
   // タイトルの変更
   function handleOnSendTitle() {
-    setTitle(userTitle);
+    updateData(userTitle);
     setUserTitle("");
   }
 
