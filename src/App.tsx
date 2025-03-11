@@ -1,82 +1,84 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { doc, setDoc, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, query, orderBy, limit, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { database } from "./firebaseApp";
 
-const COLLECTION_NAME = "title";  // コレクション名
-const UNIQUE_DATA_ID = "unique";  // ドキュメントID
+const COLLECTION_NAME = "comments";  // コレクション名
 
 // Firestore に格納されるデータの型定義
-type Data = {
-  title: string;
+type Comment = {
+  text: string;
+  createdAt: any;
 };
 
 // Firestore 上のタイトルデータを更新する
-function updateData(newTitle: string) {
-  const dataDoc = doc(database, COLLECTION_NAME, UNIQUE_DATA_ID);
-  const data: Data = {
-    title: newTitle,
-  };
-  setDoc(dataDoc, data);
+async function addComment(newText: string) {
+  const commentsCollecion = collection(database, COLLECTION_NAME);
+  await addDoc(commentsCollecion, {
+    text: newText,
+    createdAt: serverTimestamp(), //firestoreのタイムスタンプ型
+  });
 }
 
 function App() {
-  const [title, setTitle] = useState("Firebase、マジ神");
-  const [userTitle, setUserTitle] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]); //感想一覧
+  const [userText, setUserText] = useState("");
 
   // ドキュメントリスナーの生成
   useEffect(() => {
-    const dataDoc = doc(database, COLLECTION_NAME, UNIQUE_DATA_ID);
-    const unsubscribe = onSnapshot(dataDoc, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data() as Data;
-        setTitle(data.title);
-      }
-      return () => unsubscribe();
+    const commentsCollecion = collection(database, COLLECTION_NAME);
+    const q = query(commentsCollecion, orderBy("createdAt", "desc"), limit(10));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const commentList = snapshot.docs.map((doc) => {
+        const data = doc.data() as Comment;
+        return {
+          ...data,
+          createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+        };
+      });
+      
+      setComments(commentList);
     });
+
+    return () => unsubscribe();
   }, []);
 
-  // ユーザー入力のハンドリング
-  function handleOnChangeUserTitle(newTitle: string) {
-    setUserTitle(newTitle);
+  // ユーザー入力の処理
+  function handleOnChangeUserText(newText: string) {
+    setUserText(newText);
   }
 
-  // タイトルの変更
-  function handleOnSendTitle() {
-    updateData(userTitle);
-    setUserTitle("");
+  // 感想をfirestoreに追加
+  async function handleOnSendComment() {
+    if (userText.trim() === "") return;
+    await addComment(userText);
+    setUserText("");
   }
 
+  console.log(comments)
   return (
     <>
       <div>
-        タイトル争奪戦
-        <h1>{title}</h1>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <input
-            type="text"
-            id="new-title"
-            name="new-title"
-            value={userTitle}
-            onChange={(e) => handleOnChangeUserTitle(e.target.value)}
+        <h1 className="title">TimeLine</h1>
+        <h3 className="sub_title">Try writing something! 👇</h3>
+        <div className="comment_box">
+          <textarea
+            className="comment_area"
+            placeholder="Write here"
+            value={userText}
+            onChange={(e) => handleOnChangeUserText(e.target.value)}
           />
-          <input
-            type="button"
-            id="change-title"
-            name="change-title"
-            value="書き換える"
-            minLength={50}
-            onClick={() => handleOnSendTitle()}
-          />
+          <button className="comment_btn" onClick={() => handleOnSendComment()}>Post</button>
         </div>
+        <ul className="comment_list">
+          {comments.map((comment, index) => (
+            <li className="comment_item" key={index}>
+              <p className="comment_item__text" style={{ whiteSpace: "pre-wrap" }}>{comment.text}</p>
+              <small className="comment_item__time">{comment.createdAt.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</small>
+            </li>
+          ))}
+        </ul>
       </div>
     </>
   );
