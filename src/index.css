@@ -109,6 +109,29 @@ button:focus-visible {
   font-size: 1.2rem;
 }
 
+.fixed_post_area {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  width: 80%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new_post_input {
+  flex: 1;
+  height: 400;
+  padding: 4px;
+  border: 1px solid ;
+  resize: none;
+}
+
 @media screen and (max-width: 768px) {
   .title {
     margin-top: 10px;
