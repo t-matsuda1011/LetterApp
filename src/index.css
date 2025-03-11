@@ -66,3 +66,75 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.comment_box {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.comment_area {
+  padding: 10px 15px;
+  border-radius: 8px;
+  resize: none;
+}
+.comment_btn {
+  text-align: center;
+}
+.comment_list {
+  margin: 20px auto 0;
+  padding: 0;
+  width: 80%;
+  list-style: none;
+}
+.comment_item {
+  margin-bottom: 10px;
+  padding: 10px 20px;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+@media screen and (max-width: 768px) {
+  .title {
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 10rem;
+  }
+  .sub_title {
+    margin: 0 auto 55px;
+    font-size: 4rem;
+  }
+  .comment_box {
+    margin-bottom: 60px;
+    gap: 20px;
+  }
+  .comment_area {
+    padding: 30px 35px;
+    width:55%;
+    height: 150px;
+    font-size: 3rem;
+    border-radius: 20px;
+  }
+  .comment_btn {
+    padding: 30px 20px;
+    width: 18%;
+    font-size: 4rem;
+  }
+  .comment_list {
+    margin: 0 auto;
+  }
+  .comment_item {
+    margin-bottom: 40px;
+    padding: 50px 60px;
+    border-radius: 20px;
+  }
+  .comment_item__text {
+    margin: 20px auto 30px;
+    font-size: 4rem;
+  }
+  .comment_item__time {
+    font-size: 2.5rem;
+  }
+}
