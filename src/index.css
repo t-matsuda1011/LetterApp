@@ -31,8 +31,11 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 5rem;
   line-height: 1.1;
+}
+h3 {
+  font-size: 2.5rem;
 }
 
 button {
@@ -67,19 +70,21 @@ button:focus-visible {
   }
 }
 .comment_box {
-  margin: 0 auto;
+  margin: 0 auto 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
 }
 .comment_area {
-  padding: 10px 15px;
+  padding: 20px 30px;
   border-radius: 8px;
   resize: none;
+  font-size: 1.4rem;
 }
 .comment_btn {
   text-align: center;
+  font-size: 1.4rem;
 }
 .comment_list {
   margin: 20px auto 0;
@@ -89,11 +94,18 @@ button:focus-visible {
 }
 .comment_item {
   margin-bottom: 10px;
-  padding: 10px 20px;
+  padding: 20px 30px;
   border: 1px solid rgb(118, 118, 118);
   border-radius: 8px;
   word-wrap: break-word;
   text-align: left;
+}
+.comment_item__text {
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+.comment_item__time {
+  font-size: 1.2rem;
 }
 
 @media screen and (max-width: 768px) {
