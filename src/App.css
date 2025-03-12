@@ -45,6 +45,9 @@ h1 {
   font-size: 5rem;
   line-height: 1.1;
 }
+.title {
+  margin: 30px auto;
+}
 h3 {
   font-size: 2.5rem;
 }
@@ -87,13 +90,6 @@ button:focus-visible {
   justify-content: center;
   gap: 10px;
 }
-.comment_area {
-  padding: 15px 15px;
-  width: 50%;
-  border-radius: 8px;
-  resize: none;
-  font-size: 1.4rem;
-}
 .comment_btn {
   text-align: center;
   font-size: 1.4rem;
@@ -112,6 +108,7 @@ button:focus-visible {
   word-wrap: break-word;
   text-align: left;
   white-space: pre-wrap;
+  font-family: "Noto Sans JP", sans-serif;
 }
 .comment_item__text {
   margin-top: 0;
@@ -179,6 +176,16 @@ button:focus-visible {
   line-height: 1.2rem;
   border-radius: 4px;
 }
+.reply_btn_box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.comment_wrapper {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px dotted #ddd;
+}
 
 @media screen and (max-width: 768px) {
   .title {
@@ -225,7 +232,7 @@ button:focus-visible {
     font-size: 0.8rem;
   }
   .reply_comment {
-    width: 80%;
+    width: 75%;
     margin-left: auto;
   }
   .reply_comment::before {
@@ -234,6 +241,15 @@ button:focus-visible {
   }
   .reply_label {
     font-size: 0.5rem;
+  }
+  .reply_box {
+    display: flex;
+    flex-direction: column;
+  }
+  .comment_wrapper {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #ddd;
   }
 }
 
@@ -244,8 +260,8 @@ button:focus-visible {
 }
 
 .reply_comment {
-  border-left: 2px solid #ccc;
-  padding-left: 25px;
+  border-left: 4px solid rgb(71, 74, 78);
+  border-radius: 0 8px 8px 0;
 }
 
 .reply_label {

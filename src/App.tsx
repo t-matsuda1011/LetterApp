@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { collection, addDoc, query, orderBy, serverTimestamp, onSnapshot, DocumentSnapshot, DocumentData } from "firebase/firestore";
+import { where, getDocs, collection, addDoc, query, orderBy, serverTimestamp, onSnapshot, DocumentSnapshot, DocumentData, doc, deleteDoc } from "firebase/firestore";
 import { database } from "./firebaseApp";
+import CommentItem from "./CommentItem";
 
 const COLLECTION_NAME = "comments";  // コレクション名
 
 // Firestore に格納されるデータの型定義
-type Comment = {
+export type Comment = {
   id: string;
   text: string;
   createdAt: any;
@@ -22,6 +23,28 @@ async function addComment(newText: string, parentId: string | null = null) {
     parentId: parentId || null,
   });
   return docRef.id;
+}
+
+export async function deleteComment(commentId: string) {
+  const commentDocRef = doc(database, "comments", commentId);
+
+  // まず親コメントを削除
+  await deleteDoc(commentDocRef);
+
+  // 子コメントを取得
+  const repliesQuery = query(
+    collection(database, "comments"),
+    where("parentId", "==", commentId)
+  );
+
+  const replySnapshots = await getDocs(repliesQuery);
+
+  // 子コメントも削除
+  const deletePromises = replySnapshots.docs.map((docSnapshot) =>
+    deleteDoc(doc(database, "comments", docSnapshot.id))
+  );
+
+  await Promise.all(deletePromises);
 }
 
 function App() {
@@ -81,7 +104,7 @@ function App() {
     return comments
       .filter((comment) => comment.parentId === parentId)
       .map((reply) => (
-        <li key={reply.id}>
+        <div key={reply.id}>
           <CommentItem
             comment={reply}
             comments={comments}
@@ -93,7 +116,7 @@ function App() {
           />
           {/* さらにそのリプライへのリプライも表示 */}
           {renderReplies(reply.id)}
-        </li>
+        </div>
       ));
   };
 
@@ -106,7 +129,7 @@ function App() {
         {comments
           .filter((comment) => comment.parentId === null) // 親コメントだけ最初に表示
           .map((comment) => (
-            <li key={comment.id}>
+            <li key={comment.id} className="comment_wrapper">
               <CommentItem
                 comment={comment}
                 comments={comments}
@@ -134,70 +157,5 @@ function App() {
     </div>
   );
 }
-
-function CommentItem({
-  comment,
-  comments,  // コメントリストを受け取る
-  setReplyTo,
-  replyTo,
-  replyText,
-  setReplyText,
-  handleOnSendComment,
-}: {
-  comment: Comment;
-  comments: Comment[];  // コメントリストを受け取る
-  setReplyTo: (id: string | null) => void;
-  replyTo: string | null;
-  replyText: string;
-  setReplyText: (text: string) => void;
-  handleOnSendComment: (parentId: string | null) => void;
-}) {
-  // 親コメント（リプライ先）のテキストを取得
-  const parentComment = comment.parentId
-    ? comments.find((c) => c.id === comment.parentId)
-    : null;
-
-  // テキストが長すぎる場合、省略する関数
-  const truncateText = (text: string, length: number = 30) => {
-    return text.length > length ? `${text.slice(0, length)}...` : text;
-  };
-
-  return (
-    <li className={`comment_item ${comment.parentId ? "reply_comment" : ""}`}>
-      {parentComment && (
-        <span className="reply_label">
-          ↪ Reply to {" "}
-          <span className="reply_to_text">
-            「 {truncateText(parentComment.text, 30)} 」
-          </span>
-        </span>
-      )}
-      <p className="comment_item__text">{comment.text}</p>
-      <div className="sub_text__box">
-        <small className="comment_item__time">
-          {comment.createdAt.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
-        </small>
-        <button className="reply_btn" onClick={() => setReplyTo(comment.id)}>Reply</button>
-      </div>
-
-      {replyTo === comment.id && (
-        <div className="reply_box">
-          <textarea
-            className="reply_area"
-            placeholder="Write a reply..."
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-          />
-          <button className="reply_submit_btn" onClick={() => handleOnSendComment(comment.id)}>
-            Reply
-          </button>
-          <button className="cancel_btn" onClick={() => setReplyTo(null)}>Cancel</button>
-        </div>
-      )}
-    </li>
-  );
-}
-
-
 
 export default App;
