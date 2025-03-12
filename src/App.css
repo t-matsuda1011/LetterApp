@@ -182,9 +182,7 @@ button:focus-visible {
   gap: 10px;
 }
 .comment_wrapper {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px dotted #ddd;
+  margin-bottom: 35px;
 }
 
 @media screen and (max-width: 768px) {
@@ -247,9 +245,7 @@ button:focus-visible {
     flex-direction: column;
   }
   .comment_wrapper {
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px dotted #ddd;
+    margin-bottom: 25px;
   }
 }
 
