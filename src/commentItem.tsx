@@ -1,4 +1,3 @@
-import React from "react";
 import { Comment, deleteComment } from "./App";
 
 type CommentItemProps = {
