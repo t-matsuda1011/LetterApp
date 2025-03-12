@@ -1,86 +1,160 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { collection, addDoc, query, orderBy, limit, serverTimestamp, onSnapshot } from "firebase/firestore";
+import { where, getDocs, collection, addDoc, query, orderBy, serverTimestamp, onSnapshot, DocumentSnapshot, DocumentData, doc, deleteDoc } from "firebase/firestore";
 import { database } from "./firebaseApp";
+import CommentItem from "./CommentItem";
 
 const COLLECTION_NAME = "comments";  // コレクション名
 
 // Firestore に格納されるデータの型定義
-type Comment = {
+export type Comment = {
+  id: string;
   text: string;
   createdAt: any;
+  parentId: string | null;
 };
 
 // Firestore 上のタイトルデータを更新する
-async function addComment(newText: string) {
+async function addComment(newText: string, parentId: string | null = null) {
   const commentsCollecion = collection(database, COLLECTION_NAME);
-  await addDoc(commentsCollecion, {
+  const docRef = await addDoc(commentsCollecion, {
     text: newText,
     createdAt: serverTimestamp(), //firestoreのタイムスタンプ型
+    parentId: parentId || null,
   });
+  return docRef.id;
+}
+
+export async function deleteComment(commentId: string) {
+  const commentDocRef = doc(database, "comments", commentId);
+
+  // まず親コメントを削除
+  await deleteDoc(commentDocRef);
+
+  // 子コメントを取得
+  const repliesQuery = query(
+    collection(database, "comments"),
+    where("parentId", "==", commentId)
+  );
+
+  const replySnapshots = await getDocs(repliesQuery);
+
+  // 子コメントも削除
+  const deletePromises = replySnapshots.docs.map((docSnapshot) =>
+    deleteDoc(doc(database, "comments", docSnapshot.id))
+  );
+
+  await Promise.all(deletePromises);
 }
 
 function App() {
   const [comments, setComments] = useState<Comment[]>([]); //感想一覧
-  const [userText, setUserText] = useState("");
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [newPostText, setNewPostText] = useState("");
 
   // ドキュメントリスナーの生成
   useEffect(() => {
     const commentsCollecion = collection(database, COLLECTION_NAME);
-    const q = query(commentsCollecion, orderBy("createdAt", "desc"), limit(10));
-    
+    const q = query(commentsCollecion, orderBy("createdAt", "asc"));
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const commentList = snapshot.docs.map((doc) => {
-        const data = doc.data() as Comment;
+      const commentList : Comment[] = snapshot.docs.map((doc: DocumentSnapshot<DocumentData>) => {
+        const data = doc.data();
+        if (!data) {
+          return {
+            id: doc.id,
+            text: "",
+            createdAt: new Date(),
+            parentId: null,
+          };
+        }
         return {
-          ...data,
+          id: doc.id,
+          text: data.text || "",
           createdAt: data.createdAt ? data.createdAt.toDate() : new Date(),
+          parentId: data.parentId || null,
         };
       });
-      
+
       setComments(commentList);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // ユーザー入力の処理
-  function handleOnChangeUserText(newText: string) {
-    setUserText(newText);
-  }
-
   // 感想をfirestoreに追加
   async function handleOnSendComment() {
-    if (userText.trim() === "") return;
-    await addComment(userText);
-    setUserText("");
+    if (replyText.trim() === "") return;
+    await addComment(replyText, replyTo);
+    setReplyText("");
+    setReplyTo(null);
   }
 
-  console.log(comments)
-  return (
-    <>
-      <div>
-        <h1 className="title">TimeLine</h1>
-        <h3 className="sub_title">Try writing something! 👇</h3>
-        <div className="comment_box">
-          <textarea
-            className="comment_area"
-            placeholder="Write here"
-            value={userText}
-            onChange={(e) => handleOnChangeUserText(e.target.value)}
+  async function handleNewPost() {
+    if (newPostText.trim() === "") return;
+    await addComment(newPostText, null);
+    setNewPostText("");
+  }
+
+  console.log(comments);
+
+  // 親コメントとそのリプライを表示する関数
+  const renderReplies = (parentId: string) => {
+    return comments
+      .filter((comment) => comment.parentId === parentId)
+      .map((reply) => (
+        <div key={reply.id}>
+          <CommentItem
+            comment={reply}
+            comments={comments}
+            setReplyTo={setReplyTo}
+            replyTo={replyTo}
+            replyText={replyText}
+            setReplyText={setReplyText}
+            handleOnSendComment={handleOnSendComment}
           />
-          <button className="comment_btn" onClick={() => handleOnSendComment()}>Post</button>
+          {/* さらにそのリプライへのリプライも表示 */}
+          {renderReplies(reply.id)}
         </div>
-        <ul className="comment_list">
-          {comments.map((comment, index) => (
-            <li className="comment_item" key={index}>
-              <p className="comment_item__text" style={{ whiteSpace: "pre-wrap" }}>{comment.text}</p>
-              <small className="comment_item__time">{comment.createdAt.toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}</small>
+      ));
+  };
+
+  return (
+    <div>
+      <h1 className="title">TimeLine</h1>
+      <h3 className="sub_title">Try writing something! 👇</h3>
+
+      <ul className="comment_list">
+        {comments
+          .filter((comment) => comment.parentId === null) // 親コメントだけ最初に表示
+          .map((comment) => (
+            <li key={comment.id} className="comment_wrapper">
+              <CommentItem
+                comment={comment}
+                comments={comments}
+                setReplyTo={setReplyTo}
+                replyTo={replyTo}
+                replyText={replyText}
+                setReplyText={setReplyText}
+                handleOnSendComment={handleOnSendComment}
+              />
+              {/* 親コメントにリプライがあればその下に表示 */}
+              {renderReplies(comment.id)}
             </li>
           ))}
-        </ul>
+      </ul>
+
+      <div className="fixed_post_area">
+        <textarea 
+          className="new_post_input"
+          placeholder="Write something..."
+          value={newPostText}
+          onChange={(e) => setNewPostText(e.target.value)}
+        />
+        <button className="post_btn" onClick={handleNewPost}>Post</button>
       </div>
-    </>
+    </div>
   );
 }
 

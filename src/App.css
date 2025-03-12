@@ -40,3 +40,235 @@
 .read-the-docs {
   color: #888;
 }
+
+h1 {
+  font-size: 5rem;
+  line-height: 1.1;
+}
+.title {
+  margin: 30px auto;
+}
+h3 {
+  font-size: 2.5rem;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+.comment_box {
+  margin: 0 auto 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.comment_btn {
+  text-align: center;
+  font-size: 1.4rem;
+}
+.comment_list {
+  margin: 20px auto 0;
+  padding: 0 0 100px 0;
+  width: 80%;
+  list-style: none;
+}
+.comment_item {
+  margin-bottom: 10px;
+  padding: 20px 30px;
+  border: 1px solid #1a1a1a;
+  border-radius: 8px;
+  word-wrap: break-word;
+  text-align: left;
+  white-space: pre-wrap;
+  font-family: "Noto Sans JP", sans-serif;
+}
+.comment_item__text {
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+.comment_item__time {
+  font-size: 1.2rem;
+}
+.reply_comment {
+  width: 90%;
+  margin-left: auto;
+  position: relative;
+}
+.reply_comment::before {
+  content: ">";
+  position: absolute;
+  left: -3%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+}
+
+.fixed_post_area {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  width: 80%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new_post_input {
+  flex: 1;
+  height: 400;
+  padding: 8px;
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  resize: none;
+  line-height: 1.1rem;
+}
+.sub_text__box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reply_box {
+  margin-top: 10px;
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #ddd;
+  gap: 10px;
+}
+.reply_area {
+  padding: 10px;
+  width: 80%;
+  resize: none;
+  line-height: 1.2rem;
+  border-radius: 4px;
+}
+.reply_btn_box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.comment_wrapper {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px dotted #ddd;
+}
+
+@media screen and (max-width: 768px) {
+  .title {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+  }
+  .sub_title {
+    margin: 0 auto 25px;
+    font-size: 1.2rem;
+  }
+  .comment_box {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+  .comment_area {
+    padding: 20px 20px;
+    width: 62%;
+    height: 20px;
+    font-size: 1.1rem;
+    border-radius: 10px;
+  }
+  .comment_btn {
+    padding: 10px 10px;
+    width:20%;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  .comment_list {
+    margin: 0 auto;
+    padding-bottom: 70px;
+    width: 100%;
+  }
+  .comment_item {
+    margin-bottom: 10px;
+    padding: 10px 20px 15px;
+    border-radius: 10px;
+  }
+  .comment_item__text {
+    margin: 10px auto 5px;
+    font-size: 1.1rem;
+  }
+  .comment_item__time {
+    font-size: 0.8rem;
+  }
+  .reply_comment {
+    width: 75%;
+    margin-left: auto;
+  }
+  .reply_comment::before {
+    left: -9%;
+    font-size: 1.5rem;
+  }
+  .reply_label {
+    font-size: 0.5rem;
+  }
+  .reply_box {
+    display: flex;
+    flex-direction: column;
+  }
+  .comment_wrapper {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dotted #ddd;
+  }
+}
+
+.nested_comment_list {
+  margin-left: 30px;
+  padding-left: 15px;
+  border-left: 2px solid #ddd;
+}
+
+.reply_comment {
+  border-left: 4px solid rgb(71, 74, 78);
+  border-radius: 0 8px 8px 0;
+}
+
+.reply_label {
+  margin-bottom: 20px;
+  padding-bottom: 5px;
+  display: block;
+  border-bottom: 1px dotted #ddd;
+  color: #888;
+  white-space: normal;
+}
