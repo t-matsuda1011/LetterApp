@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "letterapp-abc8c"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }
